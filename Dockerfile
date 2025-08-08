@@ -1,6 +1,6 @@
-FROM gcc:15 AS builder
+FROM debian:bookworm-slim AS builder
 
-RUN apt-get update && apt-get install -y make \
+RUN apt-get update && apt-get install -y make gcc \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . /app
