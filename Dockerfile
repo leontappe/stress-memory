@@ -1,4 +1,4 @@
-FROM gcc:14 AS builder
+FROM gcc:15 AS builder
 
 RUN apt-get update && apt-get install -y make \
     && rm -rf /var/lib/apt/lists/*
@@ -9,7 +9,7 @@ WORKDIR /app
 RUN make clean && make
 
 # Runtime stage
-FROM debian:stable-slim
+FROM debian:bookworm-slim
 
 COPY --from=builder /app/stress /usr/local/bin/stress
 COPY --from=builder /app/stress-file /usr/local/bin/stress-file
