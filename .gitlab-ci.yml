@@ -1,0 +1,70 @@
+stages:
+  - build
+  - push
+
+variables:
+  IMAGE_NAME: $CI_REGISTRY_IMAGE/stress-memory
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+
+# Build the Docker image
+build:
+  stage: build
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG .
+    - docker build -t $IMAGE_NAME:latest .
+  after_script:
+    - docker logout $CI_REGISTRY
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Push to registry
+push:
+  stage: push
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:dev
+    # Create additional tags for releases
+    - |
+      if [ "$CI_COMMIT_TAG" != "" ]; then
+        docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:$CI_COMMIT_TAG
+        docker push $IMAGE_NAME:$CI_COMMIT_TAG
+      fi
+  after_script:
+    - docker logout $CI_REGISTRY
+  dependencies:
+    - build
+  only:
+    - main
+    - tags
+
+# Build and push on release tags
+release:
+  stage: push
+  image: docker:24-dind
+  services:
+    - docker:24-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_TAG .
+    - docker build -t $IMAGE_NAME:stable .
+    - docker push $IMAGE_NAME:$CI_COMMIT_TAG
+    - docker push $IMAGE_NAME:stable
+    - docker push $IMAGE_NAME:latest
+  after_script:
+    - docker logout $CI_REGISTRY
+  only:
+    - tags
+  when: manual

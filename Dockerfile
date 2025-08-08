@@ -1,11 +1,22 @@
-FROM debian:sid-slim
+FROM debian:stable-slim AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-	ca-certificates \
-	python3 \
-	&& rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    gcc \
+    make \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY load_filecache.py /load_filecache.py
+COPY . /app
+WORKDIR /app
 
-ENTRYPOINT ["/load_filecache.py"]
+RUN make clean && make
 
+# Runtime stage
+FROM debian:stable-slim
+
+COPY --from=builder /app/stress /usr/local/bin/stress
+COPY --from=builder /app/stress-file /usr/local/bin/stress-file
+
+RUN useradd -r -s /bin/false stress
+USER stress
+
+ENTRYPOINT ["stress"]
