@@ -19,4 +19,4 @@ COPY --from=builder /app/stress-file /usr/local/bin/stress-file
 RUN useradd -r -s /bin/false stress
 USER stress
 
-ENTRYPOINT ["stress"]
+CMD [ "stress-file", "1G" ]
