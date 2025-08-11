@@ -5,11 +5,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
-#include <time.h>
-
-#ifdef LINUX
 #include <unistd.h>
-#endif
 
 size_t parse_size(const char *str) {
     char *endptr;
