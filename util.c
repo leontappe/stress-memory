@@ -1,5 +1,12 @@
 #include "util.h"
 
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <errno.h>
+#include <time.h>
+
 size_t parse_size(const char *str) {
     char *endptr;
     errno = 0;
