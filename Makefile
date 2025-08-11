@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c99 -O2
 
 # Source files
-COMMON_SRC = parse.c
+COMMON_SRC = util.c
 STRESS_SRC = stress.c
 STRESS_FILE_SRC = stress-file.c
 

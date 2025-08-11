@@ -5,7 +5,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <string.h>
-#include "parse.h"
+#include "util.h"
 
 // stress-file creates a file with given size and maps it into memory
 // Usage: stress-file <size in bytes>

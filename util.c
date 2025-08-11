@@ -1,8 +1,4 @@
-#include "parse.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <errno.h>
+#include "util.h"
 
 size_t parse_size(const char *str) {
     char *endptr;
@@ -40,4 +36,16 @@ size_t parse_size(const char *str) {
     }
 
     return (size_t)(value * multiplier);
+}
+
+void sleep_seconds(double seconds) {
+    if (seconds <= 0.0) return;
+
+    struct timespec req;
+    req.tv_sec = (time_t)seconds;
+    req.tv_nsec = (long)((seconds - req.tv_sec) * 1e9);
+
+    while (nanosleep(&req, &req) == -1) {
+        continue;
+    }
 }
