@@ -5,12 +5,14 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <string.h>
+
 #include "util.h"
+#include "config.h"
 
 // stress-file creates a file with given size and maps it into memory
 // Usage: stress-file <size in bytes>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <size in bytes>\n", argv[0]);
         exit(EXIT_FAILURE);
@@ -44,7 +46,7 @@ int main(int argc, char *argv[]) {
     printf("Writing %ld bytes to file...\n", size);
     char buffer[4096];
     memset(buffer, 'A', sizeof(buffer));
-    
+
     size_t remaining = size;
     while (remaining > 0) {
         size_t to_write = (remaining < sizeof(buffer)) ? remaining : sizeof(buffer);
@@ -68,7 +70,7 @@ int main(int argc, char *argv[]) {
 
     // Map file into memory
     printf("Mapping file into memory...\n");
-    void *mapped = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    void* mapped = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (mapped == MAP_FAILED) {
         perror("Failed to map file into memory");
         close(fd);
@@ -76,27 +78,28 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // Touch all pages to ensure they're loaded into physical memory
-    printf("Loading pages into physical memory...\n");
-    volatile char *ptr = (volatile char *)mapped;
-    size_t page_size = getpagesize();
-    for (size_t i = 0; i < size; i += page_size) {
-        // Read from each page to force it into memory
-        volatile char dummy = ptr[i];
-        (void)dummy; // Suppress unused variable warning
-    }
-    // Touch the last byte if file size isn't page-aligned
-    if (size > 0) {
-        volatile char dummy = ptr[size - 1];
-        (void)dummy;
-    }
-
-    printf("Successfully created file (%s) and mapped %ld bytes into memory.\n", template, size);
+    printf("Successfully created file (%s)\n", template);
     printf("Press Ctrl+C to terminate...\n");
 
-    // Wait for signal to terminate
+    // periodically touch the memory to keep it resident
     while (1) {
-        sleep(1);
+        printf("Loading pages into physical memory...\n");
+
+        volatile char* ptr = (volatile char*)mapped;
+        size_t page_size = getpagesize();
+        for (size_t i = 0; i < size; i += page_size) {
+            // Read from each page to force it into memory
+            volatile char dummy = ptr[i];
+            (void)dummy; // Suppress unused variable warning
+        }
+
+        // Touch the last byte if file size isn't page-aligned
+        if (size > 0) {
+            volatile char dummy = ptr[size - 1];
+            (void)dummy;
+        }
+
+        sleep_seconds(MEMORY_KEEPALIVE_INTERVAL);
     }
 
     // Cleanup (this code won't be reached due to infinite loop above,

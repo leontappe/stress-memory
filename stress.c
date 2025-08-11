@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
+
 #include "util.h"
+#include "config.h"
 
 // stress creates a file with given size and loads it into memory
 // Usage: stress <size in bytes>
@@ -40,7 +42,7 @@ int main(int argc, char* argv[]) {
             if (buffer[i] < 0x61) buffer[i] = buffer[i] + 0x20;
             else buffer[i] = buffer[i] - 0x20;
         }
-        sleep_seconds(5);
+        sleep_seconds(MEMORY_KEEPALIVE_INTERVAL);
     }
 
     free(buffer);
