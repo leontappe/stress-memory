@@ -46,10 +46,10 @@ make stress-file-only
 ### Compile manually
 ```bash
 # Malloc version
-gcc -Wall -Wextra -std=c99 -O2 -o stress stress.c parse.c
+gcc -Wall -Wextra -std=c99 -O2 -o stress stress.c util.c
 
 # File mapping version
-gcc -Wall -Wextra -std=c99 -O2 -o stress-file stress-file.c parse.c
+gcc -Wall -Wextra -std=c99 -O2 -o stress-file stress-file.c util.c
 ```
 
 ## Usage

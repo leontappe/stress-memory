@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
         buffer[i] = 'A';
     }
 
-    printf("Allocated and filled %ld bytes of memory.\n", size);
+    printf("Allocated and filled %zu bytes of memory.\n", size);
     printf("Press Ctrl+C to terminate...\n");
 
     while (1) {

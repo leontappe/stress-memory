@@ -1,3 +1,7 @@
+// Must be defined before any system header so nanosleep/struct timespec
+// are declared under strict -std=c99.
+#define _POSIX_C_SOURCE 199309L
+
 #include "util.h"
 
 size_t parse_size(const char *str) {

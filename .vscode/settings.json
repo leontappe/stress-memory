@@ -2,7 +2,6 @@
     "files.associations": {
         "*.embeddedhtml": "html",
         "ctype.h": "c",
-        "parse.h": "c",
         "util.h": "c",
         "unistd.h": "c"
     }

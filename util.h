@@ -1,8 +1,6 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#define _POSIX_C_SOURCE 199309L
-
 #include <unistd.h>
 #include <stddef.h>
 #include <stdio.h>

@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Fill the file with dummy data
-    printf("Writing %ld bytes to file...\n", size);
+    printf("Writing %zu bytes to file...\n", size);
     char buffer[4096];
     memset(buffer, 'A', sizeof(buffer));
 
@@ -80,6 +80,14 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
+    // Unlink the file now that it is mapped. With MAP_SHARED the backing
+    // storage persists until munmap/process exit, so the mapping keeps
+    // working while guaranteeing the file is reclaimed on any exit
+    // (including Ctrl+C, where the cleanup below is never reached).
+    if (unlink(template) == -1) {
+        perror("Failed to unlink temporary file");
+    }
+
     printf("Successfully created file (%s)\n", template);
     printf("Press Ctrl+C to terminate...\n");
 
@@ -104,11 +112,11 @@ int main(int argc, char* argv[]) {
         sleep_seconds(MEMORY_KEEPALIVE_INTERVAL);
     }
 
-    // Cleanup (this code won't be reached due to infinite loop above,
-    // but good practice for signal handlers)
+    // Cleanup (this code won't be reached due to infinite loop above).
+    // The file was already unlinked after mmap; closing fd and unmapping
+    // releases the last references to the backing storage.
     munmap(mapped, size);
     close(fd);
-    unlink(template);
 
     return 0;
 }
