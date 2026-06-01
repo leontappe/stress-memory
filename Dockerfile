@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS builder
+FROM debian:trixie-slim AS builder
 
 RUN apt-get update && apt-get install -y make gcc \
     && rm -rf /var/lib/apt/lists/*
@@ -9,7 +9,7 @@ WORKDIR /app
 RUN make clean && make
 
 # Runtime stage
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 COPY --from=builder /app/stress /usr/local/bin/stress
 COPY --from=builder /app/stress-file /usr/local/bin/stress-file
